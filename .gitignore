@@ -5,6 +5,7 @@ __pycache__/
 salvar_cookies.py
 # C extensions
 *.so
+teste.py
 
 
 # Distribution / packaging
