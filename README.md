@@ -1,84 +1,71 @@
 
-# SeleniumBot - Template de Automação com Selenium
+# Automação de Login no SimBrief com Google Authenticator
 
-Este é um template de automação utilizando Selenium com Python. Ele foi projetado para ser simples, flexível e configurável para realizar ações em um site específico. O bot é executado em modo **headless**, o que significa que ele não abre uma interface gráfica, tornando-o ideal para execuções em servidores ou ambientes sem interface gráfica.
+Este projeto automatiza o login no SimBrief utilizando o Selenium WebDriver com Python. A automação inclui a integração com a autenticação via Google, incluindo a captura do código do Google Authenticator via WhatsApp, utilizando a API do Twilio.
 
 ## Funcionalidades
 
-- **Configuração automática do WebDriver:** Utiliza o `webdriver_manager` para gerenciar a instalação e atualização do ChromeDriver de forma automática.
-- **Modo Headless:** O navegador é executado sem interface gráfica, ideal para execução em servidores.
-- **Acesso e Interação com Sites:** O bot consegue acessar sites e interagir com elementos da página.
-- **Tratamento de Erros:** Inclui tratamento básico de exceções como `NoSuchElementException` e `WebDriverException` para tornar o bot mais robusto.
-- **Estrutura Extensível:** A lógica específica do bot pode ser facilmente inserida no método `executar_logica_bot`.
+- Acessa o site SimBrief automaticamente.
+- Realiza login usando sua conta do Google.
+- Solicita e captura o código do Google Authenticator automaticamente via WhatsApp.
+- Preenche o código no campo correspondente e continua o processo de login.
+
+## Tecnologias Usadas
+
+- Python
+- Selenium WebDriver
+- PyWhatKit (para integração com WhatsApp)
+- Twilio API (para leitura automática de mensagens do WhatsApp)
+
+## Requisitos
+
+Para rodar este projeto, você precisará das seguintes dependências:
+
+- Python 3.x
+- Selenium
+- pywhatkit
+- Twilio (caso deseje usar a automação do código via WhatsApp)
+- WebDriver do Chrome
+
+## Instalação
+
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/seu_usuario/seu_repositorio.git
+   ```
+
+2. Navegue até o diretório do projeto:
+   ```bash
+   cd seu_repositorio
+   ```
+
+3. Instale as dependências necessárias:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Configure o seu WebDriver do Chrome. O projeto foi testado com o [ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/).
+
+## Configuração da Twilio API (se necessário)
+
+1. Crie uma conta no Twilio: [https://www.twilio.com/](https://www.twilio.com/).
+2. Configure um número de WhatsApp para a API do Twilio.
+3. Adicione suas credenciais no arquivo de configuração do Twilio.
 
 ## Como Usar
 
-### Pré-requisitos
-
-1. **Python**: Certifique-se de ter o Python 3.x instalado em seu sistema.
-2. **Bibliotecas Necessárias**: As dependências podem ser instaladas via `pip`.
-
-```bash
-pip install selenium webdriver-manager
-```
-
-### Executando o Bot
-
-Para rodar o bot, siga as etapas abaixo:
-
-1. Clone este repositório:
-
+1. Execute o script de automação:
    ```bash
-   git clone origin https://github.com/NarcisioTorquatto/selenium_bot_template.git
-   cd selenium-bot
+   python automacao_simbrief.py
    ```
 
-2. Execute o script Python:
+2. A automação irá solicitar que você insira o código do Google Authenticator enviado por WhatsApp.
+3. O código será inserido automaticamente no campo correto no SimBrief.
 
-   ```bash
-   python bot.py
-   ```
+## Contribuições
 
-   O bot irá acessar o site configurado na variável `url` no método `run()`.
-
-### Personalizando o Bot
-
-1. Modifique o URL para o site que você deseja acessar, substituindo o valor em `bot.run("https://www.example.com")` no final do script.
-2. Implemente a lógica específica do bot dentro do método `executar_logica_bot()`. Esse é o lugar onde você pode interagir com os elementos da página usando os métodos do Selenium (como `find_element`, `click`, `send_keys`, etc.).
-
-## Estrutura do Código
-
-- **SeleniumBot Class**: A classe principal que gerencia o WebDriver e a execução do bot.
-  - **__init__**: Inicializa o WebDriver e configura as opções do Chrome.
-  - **acessar_site**: Método para acessar um site específico.
-  - **executar_logica_bot**: Implementação da lógica personalizada que você deseja que o bot execute.
-  - **run**: Método principal que orquestra o funcionamento do bot.
-  - **finalizar**: Encerra o WebDriver e limpa os recursos.
-
-## Exemplos de Uso
-
-1. **Acessando um site específico**:
-
-   Se você quiser acessar um site diferente, basta alterar o URL dentro do método `run` para a URL do site desejado.
-
-2. **Interagindo com elementos**:
-
-   No método `executar_logica_bot()`, você pode usar a API do Selenium para interagir com elementos na página. Exemplo de como clicar em um botão:
-
-   ```python
-   def executar_logica_bot(self):
-       try:
-           botao = self.driver.find_element(By.ID, "id_do_botao")
-           botao.click()
-           print("Botão clicado com sucesso!")
-       except NoSuchElementException as e:
-           print(f"Erro ao encontrar o botão: {e}")
-   ```
-
-## Contribuição
-
-Se você deseja contribuir para este projeto, sinta-se à vontade para enviar pull requests. Certifique-se de que seu código esteja bem testado e siga as boas práticas de Python.
+Sinta-se à vontade para contribuir para este projeto! Se você encontrar algum problema ou desejar adicionar novas funcionalidades, por favor, abra uma issue ou envie um pull request.
 
 ## Licença
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto está licenciado sob a MIT License - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
