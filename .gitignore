@@ -6,7 +6,10 @@ salvar_cookies.py
 # C extensions
 *.so
 teste.py
-
+chat.png
+/chat.png
+tes1.py
+/tes1.py
 
 # Distribution / packaging
 resources

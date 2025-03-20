@@ -1,20 +1,27 @@
-from selenium import webdriver
+
+from selenium.common.exceptions import NoSuchElementException, WebDriverException
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException, WebDriverException
-from webdriver_manager.chrome import ChromeDriverManager
-from dotenv import load_dotenv
-import time
-import random
 from botcity.core import DesktopBot
+from selenium import webdriver
+from dotenv import load_dotenv
 
-
-USER = "testes.automation@gmail.com"
-PASSWORD = "N@ttoGl3ic3121430"
+import pygetwindow as gw
+import pytesseract
+import random
+import time
+import cv2
+import os
+import re
 
 load_dotenv()
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+user = os.getenv("USER")
+password = os.getenv("PASSWORD")
 
 class SeleniumBot:
     def __init__(self):
@@ -42,8 +49,7 @@ class SeleniumBot:
         except WebDriverException as e:
             print(f"Erro ao iniciar o WebDriver: {e}")
             raise
-     
-     
+      
     def acessar_site(self, url: str):
         """
         Acessa o site desejado.
@@ -84,7 +90,7 @@ class SeleniumBot:
             campo_email = self.driver.find_element(By.XPATH, '//*[@id="identifierId"]')
             campo_email.click()
             time.sleep(random.uniform(1, 2))
-            campo_email.send_keys(USER)
+            campo_email.send_keys(user)
             time.sleep(random.uniform(1, 2))
             
             btn_email_proximo = self.driver.find_element(By.XPATH, '//*[@id="identifierNext"]/div/button/span')
@@ -94,12 +100,34 @@ class SeleniumBot:
             campo_senha_email = self.driver.find_element(By.XPATH, '//*[@id="password"]/div[1]/div/div[1]/input')
             campo_senha_email.click()
             time.sleep(random.uniform(1, 2))
-            campo_senha_email.send_keys(PASSWORD)
+            campo_senha_email.send_keys(password)
             time.sleep(random.uniform(1, 2))
             
             btn_senha_next = self.driver.find_element(By.XPATH, '//*[@id="passwordNext"]/div/button/span')
             btn_senha_next.click()
             time.sleep(random.uniform(3, 4))
+            
+            self.checar_whatsapp()
+            codigo = self.whatsapp_navegacao()
+            
+            if codigo:
+                print(f"Código identificado: {codigo}")
+            else:
+                print("Nenhum código encontrado!")
+            
+            window = gw.getWindowsWithTitle("Fazer login nas Contas do Google - Google Chrome")[0]  # Altere para o título correto
+            if window:
+                window.restore()# Restaura se estiver minimizado
+                window.activate()  # Traz a janela para frente
+                window.maximize()
+                
+            campo_autenticador = self.driver.find_element(By.XPATH,'//*[@id="totpPin"]')
+            campo_autenticador.click()
+            campo_autenticador.send_keys(codigo)
+            
+            btn_next_autenticador = self.driver.find_element(By.XPATH,'//*[@id="totpNext"]/div/button/span') 
+            btn_next_autenticador.click()
+            input()
               
         except WebDriverException as e:
             print(f"Erro ao acessar o site {url}: {e}")
@@ -114,15 +142,13 @@ class SeleniumBot:
             time.sleep(2)
             self.deskBot.kb_type("Whatsapp")  
             time.sleep(2)
-            self.deskBot.enter()        
+            self.deskBot.enter()       
             
         else:
             self.deskBot.find("btn_whatsapp", matching=0.97, waiting_time=10000)
             self.deskBot.click()
             time.sleep(2)
-            self.whatsapp_navegacao()
-            input()
-            
+                            
     def whatsapp_navegacao(self):
         
         # Searching for element 'lupa_pesquisa_whatsapp'
@@ -141,32 +167,28 @@ class SeleniumBot:
             self.deskBot.click()
             time.sleep(1)
             self.deskBot.kb_type('Por favor, informe o Codigo do Antenticador:')
-            self.deskBot.enter()
+            self.deskBot.enter() 
             
-            
-    def executar_logica_bot(self):
-        """
-        Implementar aqui a lógica específica do bot.
-        """
-        try:
-            self.checar_whatsapp()
-        
-        except NoSuchElementException as e:
-            print(f"Erro ao encontrar elemento: {e}")
+        time.sleep(20)
+        # Capturar a tela do WhatsApp
+        self.deskBot.screenshot("chat.png")
 
+        # Processar a imagem com OCR
+        img = cv2.imread("chat.png")
+        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        texto_extraido = pytesseract.image_to_string(img_gray)
 
-    def run(self, url: str):
-        """
-        Método principal para executar o bot.
-        :param url: URL a ser acessada
-        """
-        try:
-            self.acessar_site(url)
-            self.executar_logica_bot()
-            
-        finally:
-            self.finalizar()
-    
+        print(f"Texto extraído: {texto_extraido}")  # Debug
+
+        # Extrair o código numérico de 6 dígitos
+        padrao = r"\b\d{6}\b"
+        codigos = re.findall(padrao, texto_extraido)
+
+        if codigos:
+            return codigos[-1]  # Retorna o código mais recente
+
+        return None         
+                         
     def finalizar(self):
         """
         Finaliza o WebDriver e encerra o programa corretamente.
@@ -174,6 +196,19 @@ class SeleniumBot:
         if self.driver:
             self.driver.quit()
             print("WebDriver finalizado com sucesso.")
+            
+    def run(self, url: str):
+        """
+        Método principal para executar o bot. :param url: URL a ser acessada
+        """
+        try:
+            self.acessar_site(url)
+            
+        except NoSuchElementException as e:
+            print(f"Erro ao encontrar elemento: {e}")
+            
+        finally:
+            self.finalizar()
     
 if __name__ == "__main__":
     bot = SeleniumBot()
